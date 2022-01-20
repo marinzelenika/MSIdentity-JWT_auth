@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ms_auth.Data;
+using ms_auth.Models;
 
 namespace ms_auth.Controllers
 {
