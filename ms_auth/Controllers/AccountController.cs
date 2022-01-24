@@ -26,7 +26,57 @@ namespace ms_auth.Controllers
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] UserDTO userDTO)
         {
+            _logger.LogInformation($"Registration attempt for user {UserDTO.EmailAddress}" );
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
+            try
+            {
+                var user = _mapper.Map<ApiUser>(userDTO);
+                var result = await _userManager.CreateAsync(user);
+
+                if (!result.Succeeded)
+                {
+                    return BadRequest("User registration attempt failed");
+                }
+
+                return Ok(200);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Something went wrong in the {nameof(Register)}");
+                return StatusCode(500, $"Something went wrong in the {nameof(Register)}");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login([FromBody] LoginUserDTO LoginUserDTO)
+        {
+            _logger.LogInformation($"Login attempt for user {UserDTO.EmailAddress}");
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                var result =
+                    await _signInManager.PasswordSignInAsync(LoginUserDTO.EmailAddress, LoginUserDTO.Password, false, false);
+
+                if (!result.Succeeded)
+                {
+                    return Unauthorized(LoginUserDTO);
+                }
+
+                return Accepted();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Something went wrong in the {nameof(Login)}");
+                return StatusCode(500, $"Something went wrong in the {nameof(Login)}");
+            }
         }
     }
 }
